@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        // Install the Maven version configured as "M3" and add it to the path.
+        // Use Maven tool configured as "M398" in Jenkins
         maven "M398"
     }
 
@@ -14,27 +14,28 @@ pipeline {
             }
         }
 
-         stage('Build') {
-             steps {
-                  // Get some code from a GitHub repository
+        stage('Build') {
+            steps {
+                // Optional Git checkout
                 // git 'https://github.com/altamashGit/parameterized-pipeline-job-init.git'
+                sh "mvn clean package -DskipTests=true"
+            }
+        }
 
-                 // Run Maven on a Unix agent.
-                 sh "mvn clean package -DskipTests=true"
-             }
-             
-         }
-                
-                 
-         stage('Unit test') {
-              steps {
-                  for (int i = 0; i < 60; i++) {
-                  echo "${i + 1}"
-                  sleep 1 // Sleep in Groovy pipeline (measured in seconds)
-              }
-                  sh "mvn test"
-                     sh "mvn clean package -DskipTests=true"
-              }
-         }
+        stage('Unit test') {
+            steps {
+                script {
+                    // Countdown loop (60 seconds)
+                    for (int i = 0; i < 60; i++) {
+                        echo "Countdown: ${i + 1}"
+                        sleep 1
+                    }
+
+                    // Run tests and build again (inside script block)
+                    sh "mvn test"
+                    sh "mvn clean package -DskipTests=true"
+                }
+            }
+        }
     }
 }

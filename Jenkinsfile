@@ -28,6 +28,10 @@ pipeline {
                  
          stage('Unit test') {
               steps {
+                  for (int i = 0; i < 60; i++) {
+                  echo "${i + 1}"
+                  sleep 1 // Sleep in Groovy pipeline (measured in seconds)
+              }
                   sh "mvn test"
                      sh "mvn clean package -DskipTests=true"
               }

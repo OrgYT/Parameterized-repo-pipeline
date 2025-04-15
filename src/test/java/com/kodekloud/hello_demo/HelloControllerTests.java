@@ -29,7 +29,7 @@ public class HelloControllerTests {
     public void welcome_ok() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/hello").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("hello, KodeKloud community!")));
+                .andExpect(content().string(equalTo("Hello, KodeKloud community!")));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class HelloControllerTests {
 
     @Test
     public void welcome_endsWithExpectedGreeting() throws Exception {
-      mvc.perform(MockMvcRequestBuilders.get("/hello").accept(MediaType.APPLICATION_JSON))
+      mvc.perform(MockMvcRequestBuilders.get("/Hello").accept(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(content().string(endsWith("community!")));
 

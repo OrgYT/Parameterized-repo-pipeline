@@ -1,41 +1,44 @@
 pipeline {
-    agent any
-
-    tools {
-        // Use Maven tool configured as "M398" in Jenkins
-        maven "M398"
+  agent any
+  stages {
+    stage('Maven Version') {
+      steps {
+        sh 'echo Print Maven Version'
+        sh 'mvn -version'
+      }
     }
 
-    stages {
-        stage('Echo Version') {
-            steps {
-                sh 'echo Print Maven Version'
-                sh 'mvn -version'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                // Optional Git checkout
-                // git 'https://github.com/altamashGit/parameterized-pipeline-job-init.git'
-                sh "mvn clean package -DskipTests=true"
-            }
-        }
-
-        stage('Unit test') {
-            steps {
-                script {
-                    // Countdown loop (60 seconds)
-                    for (int i = 0; i < 60; i++) {
-                        echo "Countdown: ${i + 1}"
-                        sleep 1
-                    }
-
-                    // Run tests and build again (inside script block)
-                    sh "mvn test"
-                    sh "mvn clean package -DskipTests=true"
-                }
-            }
-        }
+    stage('Build') {
+      steps {
+        sh 'mvn clean package -DskipTests=true'
+        archiveArtifacts 'target/hello-demo-*.jar'
+      }
     }
+
+    stage('Test') {
+      steps {
+        sh 'mvn test'
+        junit(testResults: 'target/surefire-reports/TEST-*.xml', keepProperties: true, keepTestNames: true)
+      }
+    }
+    
+    stage('Local Deployment') {
+      steps {
+        sh """ java -jar target/hello-demo-*.jar > /dev/null & """
+      }
+    }
+    
+    stage('Integration Testing') {
+      steps {
+        sh 'sleep 5s'
+        sh 'curl -s http://localhost:6767/hello'
+      }
+    }
+
+
+  }
+  tools {
+    maven 'M398'
+  }
+
 }

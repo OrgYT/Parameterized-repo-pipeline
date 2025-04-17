@@ -1,7 +1,25 @@
-
 pipeline {
   agent any
+
+  parameters {
+    string(name: 'SLEEP_TIME', defaultValue: '5', description: 'Time to wait before integration testing')
+    string(name: 'APP_PORT', defaultValue: '8081', description: 'Port where app runs')
+    string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch name to build')
+  }
+
+  tools {
+    maven 'M398'
+  }
+
   stages {
+    stage('Maven Version') {
+      steps {
+        sh 'echo Print Maven Version'
+        sh 'mvn -version'
+        sh "echo Sleep-Time - ${params.SLEEP_TIME}, Port - ${params.APP_PORT}, Branch - ${params.BRANCH_NAME}"
+      }
+    }
+
     stage('Build') {
       steps {
         sh 'mvn clean package -DskipTests=true'
@@ -15,30 +33,18 @@ pipeline {
         junit(testResults: 'target/surefire-reports/TEST-*.xml', keepProperties: true, keepTestNames: true)
       }
     }
-    
-    stage('Containerization') {
+
+    stage('Local Deployment') {
       steps {
-        sh 'echo Docker Build Image..'
-        sh 'echo Docker Tag Image....'
-        sh 'echo Docker Push Image......'
+        sh 'nohup java -jar target/hello-demo-*.jar > /dev/null 2>&1 &'
       }
     }
 
-    stage('Kubernetes Deployment') {
-      steps {
-        sh 'echo Deploy to Kubernetes using ArgoCD'
-      }
-    }
-    
     stage('Integration Testing') {
       steps {
-        sh "sleep 10s"
-        sh 'echo Testing using cURL commands......'
+        sh "sleep ${params.SLEEP_TIME}"
+        sh "curl -s http://localhost:${params.APP_PORT}/hello"
       }
     }
   }
-  tools {
-    maven 'M398'
-  }
-
 }

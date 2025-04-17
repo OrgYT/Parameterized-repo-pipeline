@@ -3,7 +3,7 @@ pipeline {
 
   parameters {
     string(name: 'SLEEP_TIME', defaultValue: '5', description: 'Time to wait before integration testing')
-    string(name: 'APP_PORT', defaultValue: '8080', description: 'Port where app runs')
+    string(name: 'APP_PORT', defaultValue: '8081', description: 'Port where app runs')
     string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch name to build')
   }
 
